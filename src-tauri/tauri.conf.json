@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Collector",
+  "version": "0.6.0",
+  "identifier": "dev.collector.tray",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "popover",
+        "title": "Collector",
+        "url": "index.html#popover",
+        "width": 360,
+        "height": 520,
+        "resizable": false,
+        "decorations": false,
+        "shadow": true,
+        "skipTaskbar": true,
+        "alwaysOnTop": true,
+        "visible": false
+      },
+      {
+        "label": "main",
+        "title": "Collector",
+        "url": "index.html#main",
+        "width": 720,
+        "height": 520,
+        "minWidth": 640,
+        "minHeight": 420,
+        "visible": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://static-cdn.jtvnw.net; connect-src 'self' ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"]
+  }
+}

@@ -1,0 +1,91 @@
+/*
+ * Design tokens. The only file allowed to contain literal colours.
+ * Every colour is declared once as light-dark(light, dark); the active side
+ * is chosen by `color-scheme`, which follows Windows unless Settings sets
+ * data-theme on <html>.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Neutral scale: one warm grey, seven steps. */
+  --n1: light-dark(#fbfaf8, #1c1b19); /* window background */
+  --n2: light-dark(#f3f1ed, #262422); /* quiet surface: hover, status strip */
+  --n3: light-dark(#e8e5df, #32302d); /* pressed, selected, skeleton */
+  --n4: light-dark(#dcd8d0, #3d3a37); /* hairline dividers, tick-bar track */
+  --n5: light-dark(#8a857d, #7d7972); /* control borders, disabled icons (3:1) */
+  --n6: light-dark(#625d56, #aaa59d); /* secondary text */
+  --n7: light-dark(#1f1d1a, #f2f0ec); /* primary text, primary button fill */
+
+  /* Accent: Twitch purple, a step darker on light and lighter on dark so it
+     reads as text. Active watch slots and the streak marker only. */
+  --accent: light-dark(#772ce8, #a970ff);
+
+  /* Under a row that has been picked up, so it reads as lifted off the list. */
+  --lift: 0 4px 16px light-dark(rgb(31 29 26 / 0.2), rgb(0 0 0 / 0.55));
+
+  /* Dims the window behind the welcome tour. */
+  --scrim: light-dark(rgb(31 29 26 / 0.32), rgb(0 0 0 / 0.56));
+
+  /* Roles. Components use these, not the raw steps. */
+  --bg: var(--n1);
+  --bg-quiet: var(--n2);
+  --bg-pressed: var(--n3);
+  --line: var(--n4);
+  --border: var(--n5);
+  --text-muted: var(--n6);
+  --text: var(--n7);
+  --focus: var(--n7);
+
+  /* Spacing: 4 px grid. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Sizes that are not spacing. */
+  --control-h: 32px;
+  --icon-btn: 28px;
+  --hairline: 1px;
+  --rule: 2px; /* slot edge rule, tick bar, focus ring */
+
+  /* Type: Segoe UI Variable, four sizes, two weights. */
+  --font-text: 'Segoe UI Variable Text', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Segoe UI Variable Display', 'Segoe UI Variable', 'Segoe UI', system-ui,
+    sans-serif;
+  --text-caption: 12px;
+  --lh-caption: 16px;
+  --text-body: 14px;
+  --lh-body: 20px;
+  --text-title: 20px;
+  --lh-title: 28px;
+  --text-display: 28px;
+  --lh-display: 36px;
+  --weight-regular: 400;
+  --weight-strong: 600;
+
+  /* Shape. */
+  --radius-window: 8px;
+  --radius-control: 4px;
+
+  /* Motion. Quick for a control answering the pointer; move for things that
+     enter, leave or change place. One easing: fast out, gentle stop.
+     src/lib/motion.svelte.ts mirrors the two durations. */
+  --motion-quick: 120ms;
+  --motion-move: 200ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --tick: 1s; /* tick bar advances once a second, linearly */
+  --pulse: 1.6s;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}

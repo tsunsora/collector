@@ -1,0 +1,282 @@
+/* Reset, document defaults and the shared controls. Tokens only, no literals. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-text);
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
+  font-weight: var(--weight-regular);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd,
+fieldset,
+legend {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+fieldset {
+  border: 0;
+  min-width: 0;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+/* Focus: one neutral ring everywhere. The accent is never used for focus. */
+:focus-visible {
+  outline: var(--rule) solid var(--focus);
+  outline-offset: var(--rule);
+}
+
+/* Type roles */
+.t-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  line-height: var(--lh-display);
+  font-weight: var(--weight-strong);
+}
+
+.t-title {
+  font-family: var(--font-display);
+  font-size: var(--text-title);
+  line-height: var(--lh-title);
+  font-weight: var(--weight-strong);
+}
+
+.t-strong {
+  font-weight: var(--weight-strong);
+}
+
+.t-caption {
+  font-size: var(--text-caption);
+  line-height: var(--lh-caption);
+}
+
+.t-label {
+  font-size: var(--text-caption);
+  line-height: var(--lh-caption);
+  font-weight: var(--weight-strong);
+  color: var(--text-muted);
+}
+
+.t-muted {
+  color: var(--text-muted);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--control-h);
+  padding: 0 var(--space-3);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text);
+  font-weight: var(--weight-strong);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--bg-quiet);
+}
+
+.btn:active {
+  background: var(--bg-pressed);
+}
+
+.btn-primary {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--bg);
+}
+
+.btn-primary:hover,
+.btn-primary:active {
+  background: var(--text);
+}
+
+.btn-primary:hover {
+  box-shadow: inset 0 0 0 var(--hairline) var(--bg);
+}
+
+.btn-ghost {
+  border-color: transparent;
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: var(--icon-btn);
+  height: var(--icon-btn);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: var(--bg-quiet);
+}
+
+.icon-btn:active {
+  background: var(--bg-pressed);
+}
+
+.icon-btn[aria-disabled='true'] {
+  color: var(--border);
+  cursor: default;
+  background: transparent;
+}
+
+/* Text input */
+.input {
+  height: var(--control-h);
+  padding: 0 var(--space-2);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--bg);
+  color: var(--text);
+  min-width: 0;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+/* Checkbox: neutral, so the accent stays reserved. */
+.check {
+  appearance: none;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--space-4);
+  height: var(--space-4);
+  margin: 0;
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--bg);
+  cursor: pointer;
+}
+
+.check:checked {
+  border-color: var(--text);
+  background: var(--text);
+}
+
+.check:checked::before {
+  content: '';
+  width: var(--space-3);
+  height: var(--space-3);
+  background: var(--bg);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.5l2.5 2.5 4.5-5.5' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/* Skeleton block for loading states */
+.skel {
+  display: block;
+  height: var(--space-3);
+  border-radius: var(--radius-control);
+  background: var(--bg-pressed);
+  animation: skel-pulse var(--pulse) ease-in-out infinite alternate;
+}
+
+@keyframes skel-pulse {
+  to {
+    opacity: 0.5;
+  }
+}
+
+/* Controls answer the pointer with a short fade instead of a snap. */
+.btn,
+.icon-btn,
+.input,
+.check {
+  transition:
+    background-color var(--motion-quick) var(--ease),
+    border-color var(--motion-quick) var(--ease),
+    color var(--motion-quick) var(--ease),
+    box-shadow var(--motion-quick) var(--ease),
+    transform var(--motion-quick) var(--ease);
+}
+
+/* A button gives a little under the pointer. */
+.btn:active,
+.icon-btn:active:not([aria-disabled='true']) {
+  transform: scale(0.97);
+}
+
+/*
+ * While the theme is switching, nothing fades: every colour changes in the
+ * same frame, so text never sits on the wrong background for a moment.
+ * data-still is the same switch held on, for the audit.
+ */
+:root[data-switching] *,
+:root[data-switching] *::before,
+:root[data-switching] *::after,
+:root[data-still] *,
+:root[data-still] *::before,
+:root[data-still] *::after {
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
