@@ -251,6 +251,13 @@ input {
     transform var(--motion-quick) var(--ease);
 }
 
+/* Switching theme cross-fades the window (see App.setTheme). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--motion-move);
+  animation-timing-function: var(--ease);
+}
+
 /* A button gives a little under the pointer. */
 .btn:active,
 .icon-btn:active:not([aria-disabled='true']) {

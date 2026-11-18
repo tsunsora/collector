@@ -105,4 +105,6 @@ export interface Snapshot {
   update: UpdateInfo;
   /** Download updates as they appear, without being asked. */
   autoUpdate: boolean;
+  /** A channel with a streak due takes a watch slot ahead of list order. */
+  streakFirst: boolean;
 }

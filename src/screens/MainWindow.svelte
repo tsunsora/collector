@@ -39,8 +39,9 @@
   </nav>
 
   <main>
-    <!-- A page settles in when you switch to it. The one you left just goes. -->
-    {#key app.section}
+    <!-- A page settles in when you switch to it, and when it changes state
+         (loading, signed out, ready). The one you left just goes. -->
+    {#key `${app.section}|${app.blocked ? app.status : 'ready'}`}
       <div in:arrive>
         {#if app.section === 'watching'}
           <Watching />

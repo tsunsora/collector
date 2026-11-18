@@ -25,6 +25,7 @@ export const tauriBackend: Backend = {
   downloadUpdate: () => invoke('download_update'),
   installUpdate: () => invoke('install_update'),
   setAutoUpdate: (enabled) => invoke('set_auto_update', { enabled }),
+  setStreakFirst: (enabled) => invoke('set_streak_first', { enabled }),
   showLog: () => invoke('show_log'),
   quit: () => invoke('quit_now'),
   setWelcomed: (welcomed) => invoke('set_welcomed', { welcomed }),

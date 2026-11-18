@@ -5,6 +5,7 @@
   import Icon from '../components/Icon.svelte';
   import Notice from '../components/Notice.svelte';
   import SignInPrompt from '../components/SignInPrompt.svelte';
+  import { fade } from '../lib/motion.svelte';
   import StatusStrip from '../components/StatusStrip.svelte';
   import WatchList from '../components/WatchList.svelte';
 
@@ -35,6 +36,9 @@
   </header>
 
   <div class="body" aria-busy={app.status === 'loading'}>
+    <!-- Loading, signed out, empty, ready: each fades in when it takes over. -->
+    {#key app.blocked ? app.status : empty ? 'empty' : 'ready'}
+    <div in:fade>
     {#if app.status === 'loading'}
       <div class="skeleton" aria-hidden="true">
         {#each [0, 1] as i (i)}
@@ -69,6 +73,8 @@
       <StatusStrip />
       <WatchList />
     {/if}
+    </div>
+    {/key}
   </div>
 
   <footer>

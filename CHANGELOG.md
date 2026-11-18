@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.2 (2026-11-18)
+
+A proper toast after removing a channel, smoother movement in the places that still jumped, and a switch for putting streaks first.
+
+- **Undo toast:** removing a channel now shows a toast that floats at the bottom of the window, with **Undo** and a dismiss button. A line along its edge runs down for eight seconds, then it leaves by itself. It waits while the pointer or the keyboard is on it, and Escape dismisses it.
+- **Removing a channel:** **Remove** and **Keep** slide in over the end of the row instead of pushing the points aside, and fade away again. The removed row fades out and the rest close up.
+- **Rows:** channels fade as they join or leave a list, including while you search.
+- **Changes of state:** loading, signed out and ready fade into one another in the window and the tray view, and so do the update button and the account row in Settings.
+- **Watching marker:** the purple rule fades in and out as watching starts and stops.
+- **Theme:** switching between light and dark cross-fades the whole window.
+- **Put streaks first:** a new switch under **Settings › Watching**. On, a live channel with a streak due takes a watch slot ahead of your list order for up to seven minutes, as before. Off, the two highest live channels are always the ones watched.
+
 ## 0.6.1 (2026-11-18)
 
 Profile pictures stay put.

@@ -44,6 +44,8 @@ export interface Backend {
   /** Put the downloaded update in place and start the app again. Rejects with a message. */
   installUpdate(): Promise<void>;
   setAutoUpdate(enabled: boolean): Promise<Snapshot>;
+  /** Whether a channel with a streak due takes a watch slot ahead of list order. */
+  setStreakFirst(enabled: boolean): Promise<Snapshot>;
   /** Show the log file in its folder. */
   showLog(): Promise<void>;
   /** Stop collecting and close the app. A downloaded update installs on the way out. */

@@ -2,7 +2,7 @@
   import { tick } from 'svelte';
   import { flip } from 'svelte/animate';
   import { app } from '../lib/app.svelte';
-  import { MOVE, ms } from '../lib/motion.svelte';
+  import { fade, MOVE, ms } from '../lib/motion.svelte';
   import Avatar from './Avatar.svelte';
   import Icon from './Icon.svelte';
   import Notice from './Notice.svelte';
@@ -85,8 +85,8 @@
     <div>
       <div class="bulk">
         {#if confirming}
-          <span>Add {shown.length} {noun} to the end of your list?</span>
-          <span class="buttons">
+          <span in:fade>Add {shown.length} {noun} to the end of your list?</span>
+          <span class="buttons" in:fade>
             <button id="followed-confirm" class="btn btn-primary" onclick={addAll}>Add {shown.length}</button>
             <button
               class="btn"
@@ -120,7 +120,12 @@
       </div>
       <ul>
         {#each shown as f (f.login)}
-          <li class="row" animate:flip={{ duration: glide }}>
+          <li
+            class="row"
+            animate:flip={{ duration: glide }}
+            in:fade={{ duration: shown.length > 80 ? 0 : 120 }}
+            out:fade={{ duration: shown.length > 80 ? 0 : 120 }}
+          >
             <Avatar name={f.name} url={f.avatar} />
             <span class="who">
               <span class="t-strong name">{f.name}</span>

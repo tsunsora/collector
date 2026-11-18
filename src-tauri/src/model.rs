@@ -158,4 +158,6 @@ pub struct Snapshot {
     pub update: UpdateInfo,
     /// Download updates as they appear, without being asked.
     pub auto_update: bool,
+    /// A channel with a streak due takes a watch slot ahead of list order.
+    pub streak_first: bool,
 }

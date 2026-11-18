@@ -122,7 +122,7 @@
   {/if}
 
   <!-- A different view, channel or period settles in as one piece. -->
-  {#key `${view}|${only}|${range}`}
+  {#key `${view}|${only}|${range}|${filter}`}
   <div in:arrive>
   {#if view === 'channels'}
     {#if byChannel.length === 0}

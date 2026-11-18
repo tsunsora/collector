@@ -50,6 +50,8 @@ struct Saved {
     welcomed: bool,
     /// Download updates without being asked. Missing means yes.
     auto_update: Option<bool>,
+    /// Streak-due channels go ahead of list order. Missing means yes.
+    streak_first: Option<bool>,
     /// Channels in priority order. `None` until the list is first changed.
     channels: Option<Vec<SavedChannel>>,
 }
@@ -105,6 +107,7 @@ fn save(app: &AppHandle, collector: &Collector) {
         start_paused: collector.start_paused,
         welcomed: collector.welcomed,
         auto_update: Some(collector.auto_update),
+        streak_first: Some(collector.streak_first),
         channels: Some(
             collector
                 .saved_channels()
@@ -389,6 +392,12 @@ fn set_auto_update(app: AppHandle, enabled: bool) -> Snapshot {
     update(&app, true, |c| c.auto_update = enabled).1
 }
 
+/// Whether a channel with a streak due takes a watch slot ahead of list order.
+#[tauri::command]
+fn set_streak_first(app: AppHandle, enabled: bool) -> Snapshot {
+    update(&app, true, |c| c.streak_first = enabled).1
+}
+
 /// Show the log file in its folder, to read or to send.
 #[tauri::command]
 fn show_log(app: AppHandle) -> Result<(), String> {
@@ -599,6 +608,7 @@ pub fn run() {
             };
             collector.welcomed = saved.welcomed;
             collector.auto_update = saved.auto_update.unwrap_or(true);
+            collector.streak_first = saved.streak_first.unwrap_or(true);
             collector.update = handle.state::<Updater>().initial();
             if let Some(channels) = saved.channels {
                 let pairs: Vec<_> = channels.into_iter().map(SavedChannel::into_pair).collect();
@@ -658,6 +668,7 @@ pub fn run() {
             download_update,
             install_update,
             set_auto_update,
+            set_streak_first,
             show_log,
             quit_now,
             open_main,

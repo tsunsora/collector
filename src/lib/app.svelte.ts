@@ -3,6 +3,7 @@
 // (current section, theme, the undo strip, live-region text).
 import { backend } from './backend';
 import { startOfDay } from './format';
+import { still } from './motion.svelte';
 import type {
   ActivityEvent,
   Channel,
@@ -66,6 +67,7 @@ class App {
   version = $state('');
   update = $state.raw<UpdateInfo>({ state: 'off', version: null, notes: null, checkedAt: null, message: null });
   autoUpdate = $state(true);
+  streakFirst = $state(true);
   events = $state.raw<ActivityEvent[]>([]);
 
   // Local to this window.
@@ -141,6 +143,7 @@ class App {
     this.version = s.version;
     this.update = s.update;
     this.autoUpdate = s.autoUpdate;
+    this.streakFirst = s.streakFirst;
     // A fresh start gets the tour once, as soon as the first state arrives.
     if (!s.welcomed && !this.#tourOffered) this.startTour();
     this.#tourOffered = true;
@@ -223,6 +226,10 @@ class App {
     }
   }
 
+  setStreakFirst(enabled: boolean) {
+    return this.#run(backend.setStreakFirst(enabled));
+  }
+
   setAutoUpdate(enabled: boolean) {
     return this.#run(backend.setAutoUpdate(enabled));
   }
@@ -245,7 +252,11 @@ class App {
 
   setTheme(mode: ThemeMode) {
     this.theme = mode;
-    applyTheme(mode);
+    // The whole window cross-fades as one picture, so no single element is
+    // ever caught between its old colour and its new one.
+    const doc = document as Document & { startViewTransition?: (change: () => void) => unknown };
+    if (doc.startViewTransition && !still()) doc.startViewTransition(() => applyTheme(mode));
+    else applyTheme(mode);
     try {
       if (mode === 'system') localStorage.removeItem('theme');
       else localStorage.setItem('theme', mode);

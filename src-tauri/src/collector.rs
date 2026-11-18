@@ -110,6 +110,9 @@ pub struct Collector {
     pub welcomed: bool,
     pub update: UpdateInfo,
     pub auto_update: bool,
+    /// A channel with a streak due takes a watch slot ahead of list order.
+    /// Off, the slots follow list order alone.
+    pub streak_first: bool,
     tracks: HashMap<String, Track>,
     removed: Option<(Channel, usize)>,
     next_event: u64,
@@ -134,6 +137,7 @@ impl Collector {
             welcomed: false,
             update: UpdateInfo::in_state(UpdateState::Off),
             auto_update: true,
+            streak_first: true,
             tracks: HashMap::new(),
             removed: None,
             next_event: 0,
@@ -147,12 +151,14 @@ impl Collector {
         format!("e{}-{}", now_ms(), self.next_event)
     }
 
-    /// Live channels, streak-due first, then list order.
+    /// Live channels in list order. With `streak_first` on, the ones with a
+    /// streak due go ahead of the rest.
     pub(crate) fn slots(&self) -> Vec<Option<String>> {
         let live = || self.channels.iter().filter(|c| c.live);
+        let ahead = |c: &&Channel| self.streak_first && c.streak_due;
         let mut picked = live()
-            .filter(|c| c.streak_due)
-            .chain(live().filter(|c| !c.streak_due))
+            .filter(ahead)
+            .chain(live().filter(|c| !ahead(c)))
             .map(|c| c.id.clone());
         (0..SLOT_COUNT).map(|_| picked.next()).collect()
     }
@@ -176,6 +182,7 @@ impl Collector {
             version: env!("CARGO_PKG_VERSION").to_string(),
             update: self.update.clone(),
             auto_update: self.auto_update,
+            streak_first: self.streak_first,
         }
     }
 
@@ -1368,6 +1375,17 @@ mod tests {
     #[test]
     fn a_streak_due_channel_jumps_ahead() {
         let c = collector(&[("alpha", true, false), ("bravo", true, false), ("charlie", true, true)]);
+        assert_eq!(c.slots(), vec![Some("charlie".into()), Some("alpha".into())]);
+    }
+
+    #[test]
+    fn with_streaks_first_turned_off_the_slots_follow_list_order_alone() {
+        let mut c = collector(&[("alpha", true, false), ("bravo", true, false), ("charlie", true, true)]);
+        c.streak_first = false;
+        assert_eq!(c.slots(), vec![Some("alpha".into()), Some("bravo".into())]);
+        // The channel is still marked as due; it just does not jump the queue.
+        assert!(c.channels[2].streak_due);
+        c.streak_first = true;
         assert_eq!(c.slots(), vec![Some("charlie".into()), Some("alpha".into())]);
     }
 

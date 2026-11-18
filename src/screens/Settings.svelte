@@ -1,6 +1,7 @@
 <script lang="ts">
   import { app } from '../lib/app.svelte';
   import { clock } from '../lib/format';
+  import { fade } from '../lib/motion.svelte';
   import type { ThemeMode } from '../lib/types';
   import Screen from '../components/Screen.svelte';
   import Segmented from '../components/Segmented.svelte';
@@ -64,6 +65,25 @@
     </div>
   </section>
 
+  <section aria-labelledby="set-watching">
+    <h2 id="set-watching" class="t-label">Watching</h2>
+    <label class="row">
+      <span>
+        <span class="line">Put streaks first</span>
+        <span class="line t-caption t-muted">
+          A live channel with a streak due takes a watch slot ahead of your list order, for up to
+          seven minutes. Off, the two highest live channels are always the ones watched.
+        </span>
+      </span>
+      <input
+        class="check"
+        type="checkbox"
+        checked={app.streakFirst}
+        onchange={(e) => setting(e.currentTarget, app.setStreakFirst, () => app.streakFirst)}
+      />
+    </label>
+  </section>
+
   <section aria-labelledby="set-startup">
     <h2 id="set-startup" class="t-label">Startup</h2>
     <label class="row">
@@ -102,6 +122,8 @@
           <p class="t-caption t-muted">{app.update.notes}</p>
         {/if}
       </div>
+      {#key app.update.state}
+      <span class="swap" in:fade>
       {#if app.update.state === 'ready'}
         <button class="btn btn-primary" onclick={() => app.installUpdate()}>Restart and update</button>
       {:else if app.update.state === 'available'}
@@ -117,6 +139,8 @@
                 : 'Check now'}
         </button>
       {/if}
+      </span>
+      {/key}
     </div>
     {#if app.update.state !== 'off'}
       <label class="row">
@@ -167,7 +191,8 @@
 
   <section aria-labelledby="set-account">
     <h2 id="set-account" class="t-label">Twitch account</h2>
-    <div class="row">
+    {#key app.signInCode ? 'code' : app.account ? 'in' : app.status === 'loading' ? 'loading' : 'out'}
+    <div class="row" in:fade>
       {#if app.signInCode}
         <SignInPrompt body="" />
       {:else if app.status === 'loading' && !app.account}
@@ -186,6 +211,7 @@
         <button class="btn btn-primary" onclick={() => app.signIn()}>Sign in to Twitch</button>
       {/if}
     </div>
+    {/key}
   </section>
 </Screen>
 
@@ -206,6 +232,11 @@
     min-height: var(--space-10);
     padding: var(--space-3) 0;
     border-bottom: var(--hairline) solid var(--line);
+  }
+
+  .swap {
+    display: flex;
+    flex: none;
   }
 
   label.row {

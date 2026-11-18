@@ -38,6 +38,7 @@ class MockBackend implements Backend {
   #welcomed = true;
   #update = update('idle');
   #autoUpdate = true;
+  #streakFirst = true;
   #removed: { channel: Channel; index: number } | null = null;
   #followed: Followed[] | 'error' = seedFollowed();
   #timer: ReturnType<typeof setInterval> | undefined;
@@ -49,7 +50,8 @@ class MockBackend implements Backend {
   /** Live channels, streak-due first, then list order. */
   #slots(): (string | null)[] {
     const live = this.#channels.filter((c) => c.live);
-    const picked = [...live.filter((c) => c.streakDue), ...live.filter((c) => !c.streakDue)];
+    const ahead = (c: Channel) => this.#streakFirst && c.streakDue;
+    const picked = [...live.filter(ahead), ...live.filter((c) => !ahead(c))];
     return Array.from({ length: SLOT_COUNT }, (_, i) => picked[i]?.id ?? null);
   }
 
@@ -68,6 +70,7 @@ class MockBackend implements Backend {
       version: VERSION,
       update: this.#update,
       autoUpdate: this.#autoUpdate,
+      streakFirst: this.#streakFirst,
     });
   }
 
@@ -292,6 +295,11 @@ class MockBackend implements Backend {
   installUpdate() {
     this.setUpdate(update('idle', { checkedAt: Date.now() }));
     return Promise.resolve();
+  }
+
+  setStreakFirst(enabled: boolean) {
+    this.#streakFirst = enabled;
+    return this.#push();
   }
 
   setAutoUpdate(enabled: boolean) {

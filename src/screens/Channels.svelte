@@ -11,6 +11,7 @@
   import SearchField from '../components/SearchField.svelte';
   import Segmented from '../components/Segmented.svelte';
   import StreakMark from '../components/StreakMark.svelte';
+  import UndoToast from '../components/UndoToast.svelte';
 
   // Two views: the priority list, and the channels followed on Twitch that
   // could be added to it.
@@ -114,6 +115,9 @@
   // a row being dragged. Not while searching or in a very long list, where
   // many rows would move at once.
   const glide = $derived(q || rows.length > 80 ? 0 : ms(MOVE));
+  // A row fades as it joins or leaves the list. Not in a very long list,
+  // where a search would set hundreds fading at once.
+  const rowFade = $derived(rows.length > 80 ? 0 : 120);
 
   // Every row is the same height, measured once when a drag starts. The drop
   // position is worked out from that and the list's own top edge, never from
@@ -178,8 +182,8 @@
 
 <Screen title="Channels">
   <p class="t-muted intro">
-    The two highest channels that are live get watched, and are marked below while they are. A
-    channel with a streak due jumps ahead until the streak is claimed.
+    The two highest channels that are live get watched, and are marked below while they are.
+    {#if app.streakFirst}A channel with a streak due jumps ahead until the streak is claimed.{/if}
   </p>
 
   <Segmented
@@ -218,7 +222,7 @@
       </button>
     </div>
     <p id="add-error" class="error t-caption t-strong" role="alert">
-      {#if error}<Icon name="alert" />{error}{/if}
+      {#if error}<span class="msg" in:fade><Icon name="alert" />{error}</span>{/if}
     </p>
   </form>
 
@@ -246,7 +250,14 @@
       <ol bind:this={list} class:dragging={drag}>
         {#each rows as channel, i (channel.id)}
           {@const watching = app.active && app.slotIds.includes(channel.id)}
-          <li class="row" class:held={drag?.id === channel.id} class:watching animate:flip={{ duration: glide }}>
+          <li
+            class="row"
+            class:held={drag?.id === channel.id}
+            class:watching
+            animate:flip={{ duration: glide }}
+            in:fade={{ duration: rowFade }}
+            out:fade={{ duration: rowFade }}
+          >
             {#if q}
               <span></span>
             {:else}
@@ -284,10 +295,40 @@
                 <span class="vh">{channel.checked ? 'No channel points' : 'Points not loaded yet'}</span>
               {/if}
             </span>
-            <span class="actions" class:asking={asking === channel.id}>
+            <span class="actions">
+              <!-- While the question is up, the buttons under it are out of reach. -->
+              <span class="buttons" inert={asking === channel.id}>
+                {#if q}
+                  <button
+                    id="ch-{channel.id}-top"
+                    class="icon-btn"
+                    aria-label="Move {channel.name} to the top"
+                    aria-disabled={position.get(channel.id) === 1}
+                    title="Move to the top"
+                    onclick={() => toTop(channel.id)}
+                  >
+                    <Icon name="top" />
+                  </button>
+                {/if}
+                <button
+                  id="ch-{channel.id}-remove"
+                  class="icon-btn"
+                  aria-label="Remove {channel.name}"
+                  title="Remove"
+                  onclick={() => ask(channel.id)}
+                >
+                  <Icon name="remove" />
+                </button>
+              </span>
               {#if asking === channel.id}
+                <!-- Slides in over the end of the row, so nothing else in it moves. -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <span class="confirm" in:fade onkeydown={(e) => e.key === 'Escape' && keep(channel.id)}>
+                <span
+                  class="confirm"
+                  in:arrive={{ x: 12, y: 0, duration: 160 }}
+                  out:fade={{ duration: 120 }}
+                  onkeydown={(e) => e.key === 'Escape' && keep(channel.id)}
+                >
                   <button
                     id="ch-{channel.id}-confirm"
                     class="btn"
@@ -300,28 +341,6 @@
                     Keep
                   </button>
                 </span>
-              {:else}
-              {#if q}
-                <button
-                  id="ch-{channel.id}-top"
-                  class="icon-btn"
-                  aria-label="Move {channel.name} to the top"
-                  aria-disabled={position.get(channel.id) === 1}
-                  title="Move to the top"
-                  onclick={() => toTop(channel.id)}
-                >
-                  <Icon name="top" />
-                </button>
-              {/if}
-              <button
-                id="ch-{channel.id}-remove"
-                class="icon-btn"
-                aria-label="Remove {channel.name}"
-                title="Remove"
-                onclick={() => ask(channel.id)}
-              >
-                <Icon name="remove" />
-              </button>
               {/if}
             </span>
           </li>
@@ -330,12 +349,7 @@
     </div>
   {/if}
 
-  {#if app.removed}
-    <p class="undo" in:arrive>
-      <span>{app.removed.name} removed. Its points stay on Twitch.</span>
-      <button id="undo-remove" class="btn" onclick={undo}><Icon name="undo" />Undo</button>
-    </p>
-  {/if}
+  <UndoToast onundo={undo} />
   </div>
   {/if}
 
@@ -399,16 +413,28 @@
 
   /* Being watched right now: the same rule and colour as a watch slot, hung
      in the margin. Accent use 1 of 2, in its third place. */
-  .watching {
+  .row {
     position: relative;
   }
 
-  .watching::before {
+  /* Always there and clear, so it can fade in and out as watching starts and stops. */
+  .row::before {
     content: '';
     position: absolute;
     inset: var(--space-2) auto var(--space-2) calc(-1 * var(--space-3));
     width: var(--rule);
+    background: transparent;
+    transition: background-color var(--motion-move) var(--ease);
+  }
+
+  .watching::before {
     background: var(--accent);
+  }
+
+  .msg {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
   }
 
   .now {
@@ -486,23 +512,26 @@
     width: calc(2 * var(--icon-btn) + var(--space-1));
   }
 
-  /* Asking "Remove?" needs room for two words, so the cell grows for that row. */
-  .actions.asking {
-    width: auto;
+  .actions {
+    position: relative;
   }
 
-  .confirm {
+  .buttons {
     display: flex;
     gap: var(--space-1);
   }
 
-  .undo {
+  /* Laid over the end of the row rather than pushed into it: the points
+     beside it fade out under its leading edge instead of jumping aside. */
+  .confirm {
+    position: absolute;
+    inset: 0 0 0 auto;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
-    border-radius: var(--radius-control);
-    background: var(--bg-quiet);
+    gap: var(--space-1);
+    padding-left: var(--space-8);
+    background: linear-gradient(to right, transparent, var(--bg) var(--space-6));
+    white-space: nowrap;
   }
+
 </style>
