@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.1 (2026-11-18)
+
+Profile pictures stay put.
+
+- **Profile pictures:** they no longer vanish after the list refreshes, which showed up as pictures disappearing when you scrolled or moved a channel.
+
 ## 0.6.0 (2026-11-18)
 
 The app is now called Collector.

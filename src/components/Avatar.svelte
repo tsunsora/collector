@@ -1,32 +1,29 @@
 <script lang="ts">
   // A channel's profile picture, so names in a list can be told apart at a
-  // glance. Until Twitch has given one, or if it fails to load, the channel's
-  // initial stands in. Decorative: the name is always beside it.
+  // glance. Until the picture has arrived, or if it fails to load, the
+  // channel's initial stands in. Decorative: the name is always beside it.
   let { name, url }: { name: string; url: string | null } = $props();
 
-  let failed = $state(false);
-  let loaded = $state(false);
-  // A different picture gets a fresh chance to load.
-  $effect(() => {
-    void url;
-    failed = false;
-    loaded = false;
-  });
+  // Which address has loaded, and which has failed. Remembering the address,
+  // not a yes or no, means a list refresh (which hands this the same address
+  // again) changes nothing, while a new address starts over by itself.
+  let loadedUrl = $state<string | null>(null);
+  let failedUrl = $state<string | null>(null);
 
   const initial = $derived((name.match(/[\p{L}\p{N}]/u)?.[0] ?? '?').toUpperCase());
 </script>
 
 <span class="avatar t-caption t-strong" aria-hidden="true">
-  {#if url && !failed}
+  {#if url && failedUrl !== url}
     <img
-      class:loaded
+      class:loaded={loadedUrl === url}
       src={url}
       alt=""
       width="32"
       height="32"
       draggable="false"
-      onload={() => (loaded = true)}
-      onerror={() => (failed = true)}
+      onload={() => (loadedUrl = url)}
+      onerror={() => (failedUrl = url)}
     />
   {:else}
     {initial}
